@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rifa's Ratings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gray-50:  #f9f9f9;
+      --gray-100: #f0f0f0;
+      --gray-200: #e0e0e0;
+      --gray-300: #c8c8c8;
+      --gray-400: #a0a0a0;
+      --gray-500: #787878;
+      --gray-600: #585858;
+      --gray-700: #3a3a3a;
+      --gray-800: #252525;
+      --gray-900: #141414;
+      --white:    #ffffff;
+      --gold:     #c9a96e;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-900);
+      color: var(--gray-200);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: .4;
+    }
+    a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 16px;
+      padding: 18px 48px;
+      background: rgba(20,20,20,.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .nav-brand {
+      font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; letter-spacing: .04em;
+      background: linear-gradient(90deg, var(--white) 35%, var(--gold) 50%, var(--white) 65%);
+      background-size: 250% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: brandShimmer 6s linear infinite;
+    }
+    @keyframes brandShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    /* 3 menu dibagi rata: masing-masing satu kolom sama lebar, teks di tengah kolom */
+    .nav-links { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+    .nav-link { display: block; padding: 4px 0; font-size: .82rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--gray-400); text-decoration: none; white-space: nowrap; transition: color .25s; }
+    .nav-link:hover { color: var(--white); }
+
+    @media (min-width: 769px) {
+      .nav-links { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 480px; }
+    }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 78vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 120px 48px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: -1;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(138,138,138,.12) 0%, transparent 70%),
+                  linear-gradient(160deg, var(--gray-900) 0%, #1e1e1e 100%);
+    }
+    .hero-ring { position: absolute; border: 1px solid rgba(255,255,255,.04); border-radius: 50%; animation: spin 30s linear infinite; }
+    .hero-ring:nth-child(1) { width: 500px; height: 500px; top: -100px; right: -100px; }
+    .hero-ring:nth-child(2) { width: 320px; height: 320px; bottom: 40px; left: -80px; animation-direction: reverse; animation-duration: 20s; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hero-content { max-width: 720px; text-align: center; position: relative; z-index: 1; }
+    .hero-tag { display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201,169,110,.3); padding: 6px 16px; border-radius: 99px; margin-bottom: 28px; animation: fadeUp .8s ease both; }
+    .hero-name { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 7vw, 5.5rem); font-weight: 900; line-height: 1.05; color: var(--white); margin-bottom: 20px; animation: fadeUp .8s .15s ease both; }
+    .hero-name span { color: var(--gray-400); }
+    .hero-status { font-size: .95rem; line-height: 1.9; color: var(--gray-400); animation: fadeUp .8s .3s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── SECTIONS ── */
+    section { padding: 90px 48px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+    .section-label { font-size: .72rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .section-label::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--gold); opacity: .4; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; color: var(--white); margin-bottom: 48px; line-height: 1.2; }
+    .divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--gray-700), transparent); margin: 0 auto; }
+
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── DAFTAR ITEM ── */
+    .item-list { display: flex; flex-direction: column; gap: 18px; }
+    .item {
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 28px;
+      position: relative; overflow: hidden;
+      transition: border-color .3s;
+    }
+    .item::before {
+      content: '';
+      position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,169,110,.4), transparent);
+    }
+    .item:hover { border-color: rgba(201,169,110,.3); }
+
+    /* Baris atas: poster | judul | rating */
+    .item-head { display: flex; align-items: center; gap: 22px; }
+    .item-title { flex: 1; min-width: 0; font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; line-height: 1.3; color: var(--white); overflow-wrap: anywhere; }
+
+    /* Poster */
+    .poster {
+      width: 108px; aspect-ratio: 2 / 3; flex-shrink: 0;
+      border-radius: 8px; overflow: hidden;
+      background: var(--gray-800);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #bands .poster { aspect-ratio: 1 / 1; }
+    .poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .poster .ph { width: 42px; height: 42px; opacity: .3; }
+
+    /* Rating bintang */
+    .rating { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .stars { position: relative; width: 200px; height: 20px; }
+    .stars-bg, .stars-fg { display: flex; position: absolute; top: 0; left: 0; height: 20px; }
+    .stars-fg { overflow: hidden; }
+    .stars svg { width: 20px; height: 20px; flex-shrink: 0; display: block; }
+    .stars-bg svg { fill: rgba(255,255,255,.12); }
+    .stars-fg svg { fill: url(#starGold); }
+    .rating-num { font-size: .82rem; color: var(--gray-500); }
+    .rating-num strong { font-size: 1.15rem; font-weight: 600; color: var(--white); }
+
+    /* Deskripsi */
+    .meta {
+      margin-top: 24px; padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px 24px;
+    }
+    .meta dt { font-size: .76rem; color: var(--gray-500); margin-bottom: 4px; }
+    .meta dd { font-size: .94rem; color: var(--gray-200); line-height: 1.5; }
+
+    /* Pendapat */
+    .opinion { margin-top: 24px; padding-left: 18px; border-left: 2px solid rgba(201,169,110,.4); }
+    .opinion-label { font-size: .76rem; color: var(--gold); margin-bottom: 8px; font-weight: 600; }
+    .opinion p:last-child { font-size: 1rem; line-height: 1.9; color: var(--gray-300); font-weight: 300; font-style: italic; }
+
+    /* ── FOOTER ── */
+    footer { text-align: center; padding: 40px 48px; border-top: 1px solid rgba(255,255,255,.06); font-size: .8rem; color: var(--gray-600); position: relative; z-index: 1; }
+    footer span { color: var(--gray-500); }
+    .footer-ornament { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+    .footer-orn-line { width: 44px; height: 1px; background: var(--gold); opacity: .22; }
+    .footer-orn-diamond { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); opacity: .38; }
+    .footer-orn-dot { width: 3px; height: 3px; background: var(--gold); border-radius: 50%; opacity: .3; }
+
+    /* ── DEKORASI LATAR: blob emas & partikel ── */
+    .deco-blob { position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; }
+    .deco-blob-1 { width: 380px; height: 380px; background: radial-gradient(circle, rgba(201,169,110,.055) 0%, transparent 70%); top: 10%; left: -140px; animation: blobDrift 16s ease-in-out infinite; }
+    .deco-blob-2 { width: 280px; height: 280px; background: radial-gradient(circle, rgba(201,169,110,.04) 0%, transparent 70%); bottom: 20%; right: -100px; animation: blobDrift 20s ease-in-out infinite reverse; }
+    .deco-blob-3 { width: 200px; height: 200px; background: radial-gradient(circle, rgba(160,160,160,.04) 0%, transparent 70%); top: 55%; left: 50%; animation: blobDrift 14s ease-in-out infinite; animation-delay: -7s; }
+    @keyframes blobDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-40px) scale(1.06); } }
+    .deco-particles { position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
+    .deco-dot { position: absolute; border-radius: 50%; background: var(--gold); opacity: 0; animation: dotFloat linear infinite; }
+    @keyframes dotFloat {
+      0%   { opacity: 0;   transform: translateY(0)      scale(0); }
+      8%   { opacity: .38; transform: translateY(-6px)   scale(1); }
+      92%  { opacity: .15; }
+      100% { opacity: 0;   transform: translateY(-140px) scale(.4); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 16px; gap: 16px; }
+      .nav-brand { flex-shrink: 0; }
+      .nav-link { font-size: .72rem; }
+      section { padding: 64px 20px; }
+      #hero { padding: 110px 20px 64px; }
+    }
+    @media (max-width: 560px) {
+      .item { padding: 22px 20px; }
+      .item-head { display: grid; grid-template-columns: auto 1fr; gap: 14px 16px; align-items: center; }
+      .poster { width: 84px; }
+      .item-title { font-size: 1.2rem; }
+      .rating { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
+      .stars { width: 180px; height: 18px; }
+      .stars-bg, .stars-fg, .stars svg { height: 18px; }
+      .stars svg { width: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-ring, .deco-blob, .nav-brand { animation: none; }
+      .deco-dot { animation: none; opacity: 0; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Dekorasi latar -->
+<div class="deco-blob deco-blob-1" aria-hidden="true"></div>
+<div class="deco-blob deco-blob-2" aria-hidden="true"></div>
+<div class="deco-blob deco-blob-3" aria-hidden="true"></div>
+<div class="deco-particles" id="decoParticles" aria-hidden="true"></div>
+
+<!-- Ikon bintang (jangan dihapus — dipakai oleh semua rating) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="starGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd84d"/>
+      <stop offset="1" stop-color="#e2a21b"/>
+    </linearGradient>
+    <symbol id="star" viewBox="0 0 24 24">
+      <path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.5l-5.9 3.2 1.2-6.6L2.5 9.5l6.6-.9z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav>
+  <div class="nav-brand">RIFA.</div>
+  <ul class="nav-links">
+    <li><a class="nav-link" href="#games">Games</a></li>
+    <li><a class="nav-link" href="#films">Films</a></li>
+    <li><a class="nav-link" href="#bands">Musics</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<div id="hero">
+  <div class="hero-bg">
+    <div class="hero-ring"></div>
+    <div class="hero-ring"></div>
+  </div>
+  <div class="hero-content">
+    <span class="hero-tag">Review Pribadi</span>
+    <h1 class="hero-name">Rifa's <span>Ratings</span></h1>
+    <p class="hero-status">Games, films, dan band yang pernah saya mainkan, tonton, dan dengarkan, lengkap dengan nilai 0&ndash;10 dan pendapat jujur saya.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  CARA MENGEDIT                                               ║
+  ║  1. Salin satu blok <article class="item"> ... </article>   ║
+  ║     lalu tempel di bawahnya untuk menambah item baru.       ║
+  ║  2. data-poster = path gambar poster, contoh:               ║
+  ║     "pics/nama-game.jpg". Kosongkan ("") untuk placeholder. ║
+  ║  3. data-rating = nilai 0 sampai 10. Boleh desimal,         ║
+  ║     contoh 8, 8.5, atau 9.5.                                ║
+  ║  4. Ganti judul, deskripsi, dan pendapat sesuai keinginan.  ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+
+<!-- ── GAMES ── -->
+<section id="games">
+  <div class="reveal">
+    <p class="section-label">Dimainkan</p>
+    <h2 class="section-title">Games</h2>
+    <div class="item-list">
+
+      <article class="item">
+        <div class="item-head">
+          <div class="poster" data-poster=""></div>
+          <h3 class="item-title">Judul Game 1</h3>
+          <div class="rating" data-rating="8"></div>
+        </div>
+        <dl class="meta">
+          <div><dt>Genre</dt><dd>Action RPG</dd></div>
+          <div><dt>Style</dt><dd>3D, open world</dd></div>
+          <div><dt>Developer</dt><dd>Nama developer</dd></div>
+        </dl>
+        <div class="opinion">
+          <p class="opinion-label">Pendapat saya</p>
+          <p>Tulis pendapat kamu tentang game ini di sini. Ceritakan apa yang kamu suka, apa yang kurang, dan kenapa kamu memberi nilai segini.</p>
+        </div>
+      </article>
+
+      <article class="item">
+        <div class="item-head">
+          <div class="poster" data-poster=""></div>
+          <h3 class="item-title">Judul Game 2</h3>
+          <div class="rating" data-rating="9.5"></div>
+        </div>
+        <dl class="meta">
+          <div><dt>Genre</dt><dd>Adventure</dd></div>
+          <div><dt>Style</dt><dd>2D, pixel art</dd></div>
+          <div><dt>Developer</dt><dd>Nama developer</dd></div>
+        </dl>
+        <div class="opinion">
+          <p class="opinion-label">Pendapat saya</p>
+          <p>Tulis pendapat kamu tentang game ini di sini.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FILMS ── -->
+<section id="films">
+  <div class="reveal">
+    <p class="section-label">Ditonton</p>
+    <h2 class="section-title">Films</h2>
+    <div class="item-list">
+
+      <article class="item">
+        <div class="item-head">
+          <div class="poster" data-poster=""></div>
+          <h3 class="item-title">Judul Film 1</h3>
+          <div class="rating" data-rating="7"></div>
+        </div>
+        <dl class="meta">
+          <div><dt>Genre</dt><dd>Drama</dd></div>
+          <div><dt>Age</dt><dd>13+</dd></div>
+          <div><dt>Duration</dt><dd>2 jam 10 menit</dd></div>
+          <div><dt>Director</dt><dd>Nama sutradara</dd></div>
+        </dl>
+        <div class="opinion">
+          <p class="opinion-label">Pendapat saya</p>
+          <p>Tulis pendapat kamu tentang film ini di sini. Ceritakan apa yang kamu suka, apa yang kurang, dan kenapa kamu memberi nilai segini.</p>
+        </div>
+      </article>
+
+      <article class="item">
+        <div class="item-head">
+          <div class="poster" data-poster=""></div>
+          <h3 class="item-title">Judul Film 2</h3>
+          <div class="rating" data-rating="10"></div>
+        </div>
+        <dl class="meta">
+          <div><dt>Genre</dt><dd>Sci-fi</dd></div>
+          <div><dt>Age</dt><dd>17+</dd></div>
+          <div><dt>Duration</dt><dd>1 jam 55 menit</dd></div>
+          <div><dt>Director</dt><dd>Nama sutradara</dd></div>
+        </dl>
+        <div class="opinion">
+          <p class="opinion-label">Pendapat saya</p>
+          <p>Tulis pendapat kamu tentang film ini di sini.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── BANDS ── -->
+<section id="bands">
+  <div class="reveal">
+    <p class="section-label">Didengar</p>
+    <h2 class="section-title">Musics</h2>
+    <div class="item-list">
+
+      <article class="item">
+        <div class="item-head">
+          <div class="poster" data-poster=""></div>
+          <h3 class="item-title">Nama Band 1</h3>
+          <div class="rating" data-rating="8.5"></div>
+        </div>
+        <dl class="meta">
+          <div><dt>Band release</dt><dd>1998</dd></div>
+          <div><dt>Genre</dt><dd>Rock</dd></div>
+          <div><dt>Sub-genre</dt><dd>Alternative rock</dd></div>
+        </dl>
+        <div class="opinion">
+          <p class="opinion-label">Pendapat saya</p>
+          <p>Tulis pendapat kamu tentang band ini di sini. Ceritakan lagu favoritmu, ciri khas musiknya, dan kenapa kamu memberi nilai segini.</p>
+        </div>
+      </article>
+
+      <article class="item">
+        <div class="item-head">
+          <div class="poster" data-poster=""></div>
+          <h3 class="item-title">Nama Band 2</h3>
+          <div class="rating" data-rating="6"></div>
+        </div>
+        <dl class="meta">
+          <div><dt>Band release</dt><dd>2012</dd></div>
+          <div><dt>Genre</dt><dd>Metal</dd></div>
+          <div><dt>Sub-genre</dt><dd>Metalcore</dd></div>
+        </dl>
+        <div class="opinion">
+          <p class="opinion-label">Pendapat saya</p>
+          <p>Tulis pendapat kamu tentang band ini di sini.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-ornament" aria-hidden="true">
+    <div class="footer-orn-line"></div>
+    <div class="footer-orn-dot"></div>
+    <div class="footer-orn-diamond"></div>
+    <div class="footer-orn-dot"></div>
+    <div class="footer-orn-line"></div>
+  </div>
+  <p>© 2026 <span>Ghodi Rifa Prakoso</span>. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Rating bintang: dibuat otomatis dari data-rating (0–10) ──
+(function () {
+  var starSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#star"/></svg>';
+  var tenStars = new Array(11).join(starSvg);
+
+  document.querySelectorAll('.rating').forEach(function (el) {
+    var val = parseFloat(el.getAttribute('data-rating'));
+    if (isNaN(val)) val = 0;
+    val = Math.max(0, Math.min(10, val));
+    var shown = (val % 1 === 0) ? String(val) : val.toFixed(1);
+
+    el.innerHTML =
+      '<div class="stars" role="img" aria-label="Rating ' + shown + ' dari 10">' +
+        '<div class="stars-bg">' + tenStars + '</div>' +
+        '<div class="stars-fg" style="width:' + (val * 10) + '%">' + tenStars + '</div>' +
+      '</div>' +
+      '<div class="rating-num"><strong>' + shown + '</strong>/10</div>';
+  });
+
+  // ── Poster: pakai gambar kalau data-poster diisi, kalau kosong tampil placeholder ──
+  var placeholder =
+    '<svg class="ph" viewBox="0 0 24 24" fill="none" stroke="#c8c8c8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+
+  document.querySelectorAll('.poster').forEach(function (el) {
+    var src = (el.getAttribute('data-poster') || '').trim();
+    var title = el.closest('.item').querySelector('.item-title').textContent;
+    if (!src) { el.innerHTML = placeholder; return; }
+    var img = new Image();
+    img.alt = 'Poster ' + title;
+    img.onerror = function () { el.innerHTML = placeholder; };
+    img.src = src;
+    el.appendChild(img);
+  });
+
+  // ── Partikel emas melayang di latar ──
+  var box = document.getElementById('decoParticles');
+  if (box) {
+    for (var i = 0; i < 22; i++) {
+      var dot = document.createElement('div');
+      dot.className = 'deco-dot';
+      var size = Math.random() * 2.8 + 1.2;
+      dot.style.cssText =
+        'width:' + size + 'px;height:' + size + 'px;' +
+        'left:' + (Math.random() * 100) + '%;' +
+        'top:' + (30 + Math.random() * 70) + '%;' +
+        'animation-duration:' + (9 + Math.random() * 16) + 's;' +
+        'animation-delay:' + (-Math.random() * 18) + 's;';
+      box.appendChild(dot);
+    }
+  }
+
+  // ── Muncul halus saat di-scroll ──
+  var reveals = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    reveals.forEach(function (r) { r.classList.add('visible'); });
+    return;
+  }
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.05 });
+  reveals.forEach(function (r) { obs.observe(r); });
+})();
+</script>
+</body>
+</html>
