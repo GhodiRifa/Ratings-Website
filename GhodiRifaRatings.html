@@ -156,6 +156,18 @@
     .opinion-label { font-size: .76rem; color: var(--gold); margin-bottom: 8px; font-weight: 600; }
     .opinion p:last-child { font-size: 1rem; line-height: 1.9; color: var(--gray-300); font-weight: 300; font-style: italic; }
 
+    /* Screenshot game (rasio 16:9, atas-bawah) */
+    .shots { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; max-width: 640px; }
+    .shot {
+      width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 10px; overflow: hidden;
+      background: var(--gray-800);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .shot .ph { width: 48px; height: 48px; opacity: .3; }
+
     /* ── FOOTER ── */
     footer { text-align: center; padding: 40px 48px; border-top: 1px solid rgba(255,255,255,.06); font-size: .8rem; color: var(--gray-600); position: relative; z-index: 1; }
     footer span { color: var(--gray-500); }
@@ -285,6 +297,11 @@
           <p class="opinion-label">Pendapat saya</p>
           <p>Tulis pendapat kamu tentang game ini di sini. Ceritakan apa yang kamu suka, apa yang kurang, dan kenapa kamu memberi nilai segini.</p>
         </div>
+        <!-- Screenshot: isi data-shot dengan path gambar, contoh "shots/crosscode1.jpg" -->
+        <div class="shots">
+          <div class="shot" data-shot=""></div>
+          <div class="shot" data-shot=""></div>
+        </div>
       </article>
 
       <article class="item">
@@ -301,6 +318,11 @@
         <div class="opinion">
           <p class="opinion-label">Pendapat saya</p>
           <p>Game 2D pixel art yang memukau serta memanjakan mata. Dari segi pencahayaan yang halus serta gaya grafik retro 16-bit yang terkesan seperti pixel, memberikan nuansa seni fantasi tersendiri dalam game ini.</p>
+        </div>
+        <!-- Screenshot: isi data-shot dengan path gambar, contoh "shots/crosscode1.jpg" -->
+        <div class="shots">
+          <div class="shot" data-shot=""></div>
+          <div class="shot" data-shot=""></div>
         </div>
       </article>
 
@@ -446,6 +468,19 @@
     if (!src) { el.innerHTML = placeholder; return; }
     var img = new Image();
     img.alt = 'Poster ' + title;
+    img.onerror = function () { el.innerHTML = placeholder; };
+    img.src = src;
+    el.appendChild(img);
+  });
+
+  // ── Screenshot game: pakai gambar kalau data-shot diisi, kalau kosong tampil placeholder ──
+  document.querySelectorAll('.shot').forEach(function (el) {
+    var src = (el.getAttribute('data-shot') || '').trim();
+    var title = el.closest('.item').querySelector('.item-title').textContent;
+    if (!src) { el.innerHTML = placeholder; return; }
+    var img = new Image();
+    img.alt = 'Screenshot ' + title;
+    img.loading = 'lazy';
     img.onerror = function () { el.innerHTML = placeholder; };
     img.src = src;
     el.appendChild(img);
